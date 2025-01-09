@@ -1,2 +1,2 @@
 # teazure
-tui for azure devops 
+tui for azure devops 🎢
