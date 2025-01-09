@@ -30,9 +30,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "enter":
-			// Fetch logs for the selected container
 			fmt.Printf("we presend enter ")
-			// Switch to logs view
 			return m, nil
 		}
 
