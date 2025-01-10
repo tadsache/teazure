@@ -9,9 +9,10 @@ import (
 )
 
 func GetAzureProjects() *core.GetProjectsResponseValue {
+
+	// todo make connection global ...
 	organizationUrl := os.Getenv("organizationUrl")
 	personalAccessToken := os.Getenv("personalAccessToken")
-
 	// Create a connection to your organization
 	connection := azuredevops.NewPatConnection(organizationUrl, personalAccessToken)
 
