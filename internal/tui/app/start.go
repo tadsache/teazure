@@ -18,10 +18,13 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+// keep the update fast https://leg100.github.io/en/posts/building-bubbletea-programs/
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+
+		// todo make a KEYMAP for the cases
 		case "ctrl+c", "q":
 			// Quit from table view
 			return m, tea.Quit
@@ -44,10 +47,10 @@ func (m model) View() string {
 	return m.table.View()
 }
 
-// todo add cfg app.Config as arg
-func Start() error {
+// not a good name
+func projectsModel() model {
+	// this is to slow?!
 	p := azure.GetAzureProjects()
-	fmt.Println(p.Value)
 
 	columns := []table.Column{
 		{Title: "Name", Width: 20},
@@ -63,6 +66,7 @@ func Start() error {
 		rows = append(rows, row)
 	}
 
+	// abstract the table?
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -75,6 +79,12 @@ func Start() error {
 	m := model{
 		table: t,
 	}
+	return m
+}
+
+// todo add cfg app.Config as arg
+func Start() error {
+	m := projectsModel()
 
 	a := tea.NewProgram(m,
 		tea.WithAltScreen())
