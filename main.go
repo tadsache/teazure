@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"log"
+	"main.go/internal/tui"
 	"main.go/internal/tui/app"
 )
 
@@ -21,5 +23,13 @@ func run() error {
 		return err
 	}
 
+	// Load THeme
+	err = tui.LoadTheme()
+	if err != nil {
+		return err
+	}
+	tui.LoadStyles() // error Hanlding?
+
+	fmt.Println(tui.GlobalTheme.SelectionBackground)
 	return app.Start()
 }

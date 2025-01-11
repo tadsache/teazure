@@ -10,6 +10,7 @@ import (
 
 // model holds the data we need in the view
 type model struct {
+	theme tui.Theme
 	table table.Model
 }
 
