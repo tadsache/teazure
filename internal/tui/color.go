@@ -53,7 +53,6 @@ func LoadTheme() error {
 	//themeName := "catppuccin-mocha"
 	themeBasePath := os.Getenv("THEME_BASE_PATH")
 	themePath := fmt.Sprintf("%s/%s", themeBasePath, themeName)
-	fmt.Println(themePath)
 	t, err := parseThemeFile(themePath)
 	if err != nil {
 		return err

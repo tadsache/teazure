@@ -9,7 +9,7 @@ import (
 	"main.go/internal/tui"
 )
 
-type ProjectModel struct {
+type ProjectsModel struct {
 	KeyMap KeyMap
 	//Help   help.Model
 
@@ -24,8 +24,8 @@ type KeyMap struct {
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
 		Enter: key.NewBinding(
-			key.WithKeys("enter", "x"),
-			key.WithHelp("x", "enter key"),
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "enter key"),
 		),
 		Quit: key.NewBinding(
 			key.WithKeys("q", "esc", "ctrl+c"),
@@ -39,7 +39,7 @@ var projectColumns = []table.Column{
 	{Title: "Id", Width: 40},
 }
 
-func NewAzProjectsTable() ProjectModel {
+func NewProjectsModel() ProjectsModel {
 	// this is to slow?!
 	p := azure.GetAzureProjects()
 	columns := projectColumns
@@ -63,7 +63,7 @@ func NewAzProjectsTable() ProjectModel {
 
 	t.SetStyles(tui.TableStyle)
 
-	m := ProjectModel{
+	m := ProjectsModel{
 		table:  t,
 		KeyMap: DefaultKeyMap(),
 	}
@@ -72,20 +72,23 @@ func NewAzProjectsTable() ProjectModel {
 
 // ELM Architecture
 
-func (m ProjectModel) Init() tea.Cmd {
+func (m ProjectsModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m ProjectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m ProjectsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// todo
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.KeyMap.Enter):
-			m.Enter()
+			// ..
+			cmd := m.Enter()
+			return m, cmd
 		case key.Matches(msg, m.KeyMap.Quit):
-			m.Quit()
+			// fixme not the right way to handle it
+			return m.Quit()
 		}
 
 		// Let the table handle up/down navigation or other keys
@@ -97,14 +100,34 @@ func (m ProjectModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m ProjectModel) View() string {
+func (m ProjectsModel) View() string {
 	return m.table.View()
 }
 
-func (m *ProjectModel) Enter() {
-	fmt.Printf("pressed ENTEr")
+func (m *ProjectsModel) Enter() tea.Cmd {
+	fmt.Printf("pressed Enter")
+	// switch to project detail view
+	// print repo id
+	c := m.table.SelectedRow()[1] // select hash id
+	fmt.Println(c)
+
+	// The user pressed Enter on a project
+	// We’ll handle "switching to detail" in the parent model,
+	// so let's send a custom message upward:
+	ms := SelectProjectMsg{
+		ProjectName: "test",
+	}
+
+	return func() tea.Msg {
+		return ms
+	}
 }
 
-func (m *ProjectModel) Quit() {
-	fmt.Printf("pressed QUIT")
+// SelectProjectMsg is a custom message we’ll emit when the user selects a project
+type SelectProjectMsg struct {
+	ProjectName string
+}
+
+func (m *ProjectsModel) Quit() (tea.Model, tea.Cmd) {
+	return m, tea.Quit
 }

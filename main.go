@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"log"
 	"main.go/internal/tui"
@@ -30,6 +29,6 @@ func run() error {
 	}
 	tui.LoadStyles() // error Hanlding?
 
-	fmt.Println(tui.GlobalTheme.SelectionBackground)
+	//fmt.Println(tui.GlobalTheme.SelectionBackground)
 	return app.Start()
 }
