@@ -10,7 +10,7 @@ type ViewState int
 const (
 	projectView ViewState = iota
 	repositoryView
-
+	pipelineView
 	// pipelineView
 	// ...
 )
@@ -21,15 +21,16 @@ type ParentModel struct {
 	// child models here
 	projectView    components.ProjectsModel
 	repositoryView *components.ReposModel
+	pipelineView   *components.PipelinesModel
 }
 
 func NewParentModel() ParentModel {
 	return ParentModel{
 		currentView: projectView,
 		// projectDetail will be initialized once we pick a project
-		//projectView: components.NewProjectsTable([]string{"Proj A", "Proj B", "Proj C"}),
 		projectView:    components.NewProjectsModel(),
 		repositoryView: nil, // dont needto be initialized at startup
+		pipelineView:   nil,
 	}
 }
 
@@ -43,6 +44,8 @@ func (m ParentModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateProjectView(msg)
 	case repositoryView:
 		return m.updateRepoView(msg)
+	case pipelineView:
+		return m.updatePipelineView(msg)
 	default:
 		panic("unhandled default case")
 	}
@@ -55,23 +58,13 @@ func (m ParentModel) updateProjectView(msg tea.Msg) (tea.Model, tea.Cmd) {
 	newModel, cmd := m.projectView.Update(msg)
 	m.projectView = newModel.(components.ProjectsModel)
 
-	// Here we can detect if a user pressed “enter” on a project
-	// and want to switch to the detail view
-	// Pseudocode:
-	// if user pressed enter:
-	//     selectedProject := m.projectsTable.projects[m.projectsTable.selectedIndex]
-	//     m.projectDetail = components.NewProjectDetail(selectedProject)
-	//     m.currentView = ProjectDetailView
-
-	// Check if the table child emitted a custom message
 	switch msg := msg.(type) {
 	case components.SelectProjectMsg:
-		// The user selected a project, so switch to ProjectDetailView
-		// Initialize projectDetail with the chosen project
-		// fmt.Println("we are here")
-
+		// The user selected a project, so switch to the Repo View
+		// Initialize repos with the chosen project
 		m.repositoryView = components.NewReposModel(msg.ProjectId)
 		m.currentView = repositoryView
+
 		// We don’t have any new command, so return nil
 		return m, nil
 	}
@@ -89,12 +82,23 @@ func (m ParentModel) updateRepoView(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m ParentModel) updatePipelineView(msg tea.Msg) (tea.Model, tea.Cmd) {
+	newModel, cmd := m.pipelineView.Update(msg)
+
+	// Assert the type and take the address
+	updatedModel := newModel.(components.PipelinesModel)
+	m.pipelineView = &updatedModel
+	return m, cmd
+}
+
 func (m ParentModel) View() string {
 	switch m.currentView {
 	case projectView:
 		return m.projectView.View()
 	case repositoryView:
 		return m.repositoryView.View()
+	case pipelineView:
+		return m.pipelineView.View()
 	default:
 		return "Unknown View"
 	}
