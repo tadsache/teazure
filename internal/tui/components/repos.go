@@ -25,9 +25,7 @@ var reposColumns = []table.Column{
 }
 
 func NewReposModel(projectId string) *ReposModel {
-	// r := azure.GetRepos
-	// todo azure
-	//testId := "002d8df7-4e1d-4c4a-9dae-83f9ea62c2cb"
+
 	var repos = azure.GetReposForProject(projectId)
 
 	var rows []table.Row
@@ -70,15 +68,17 @@ func (m ReposModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.KeyMap.Quit):
 			return m, tea.Quit
 		}
+
+		// Delegate message handling to the table and update its state
+		var cmd tea.Cmd
+		updatedTable, tableCmd := m.table.Update(msg)
+		m.table = updatedTable
+		cmd = tea.Batch(cmd, tableCmd)
+
+		return m, cmd
 	}
-
-	// Delegate message handling to the table and update its state
-	var cmd tea.Cmd
-	updatedTable, tableCmd := m.table.Update(msg)
-	m.table = updatedTable
-	cmd = tea.Batch(cmd, tableCmd)
-
-	return m, cmd
+	// Default fallback
+	return m, nil
 }
 
 func (m ReposModel) Enter() {

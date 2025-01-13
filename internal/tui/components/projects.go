@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -105,9 +104,7 @@ func (m ProjectsModel) View() string {
 }
 
 func (m *ProjectsModel) Enter() tea.Cmd {
-	fmt.Printf("pressed Enter")
 	// switch to project detail view
-
 	// The user pressed Enter on a project
 	// We’ll handle "switching to detail" in the parent model,
 	// so let's send a custom message upward:

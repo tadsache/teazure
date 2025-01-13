@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"main.go/internal/tui/components"
 )
@@ -70,7 +69,6 @@ func (m ParentModel) updateProjectView(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// The user selected a project, so switch to ProjectDetailView
 		// Initialize projectDetail with the chosen project
 		// fmt.Println("we are here")
-		fmt.Println(msg.ProjectName)
 
 		m.repositoryView = components.NewReposModel(msg.ProjectId)
 		m.currentView = repositoryView
