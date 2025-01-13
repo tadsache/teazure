@@ -15,7 +15,6 @@ func GetAzureProjects() *core.GetProjectsResponseValue {
 	personalAccessToken := os.Getenv("personalAccessToken")
 	// Create a connection to your organization
 	connection := azuredevops.NewPatConnection(organizationUrl, personalAccessToken)
-
 	ctx := context.Background()
 
 	// Create a client to interact with the Core area

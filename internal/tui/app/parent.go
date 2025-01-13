@@ -11,6 +11,7 @@ type ViewState int
 const (
 	projectView ViewState = iota
 	repositoryView
+
 	// pipelineView
 	// ...
 )
@@ -20,7 +21,7 @@ type ParentModel struct {
 
 	// child models here
 	projectView    components.ProjectsModel
-	repositoryView components.ReposModel
+	repositoryView *components.ReposModel
 }
 
 func NewParentModel() ParentModel {
@@ -29,7 +30,7 @@ func NewParentModel() ParentModel {
 		// projectDetail will be initialized once we pick a project
 		//projectView: components.NewProjectsTable([]string{"Proj A", "Proj B", "Proj C"}),
 		projectView:    components.NewProjectsModel(),
-		repositoryView: components.NewReposModel(),
+		repositoryView: nil, // dont needto be initialized at startup
 	}
 }
 
@@ -71,7 +72,7 @@ func (m ParentModel) updateProjectView(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// fmt.Println("we are here")
 		fmt.Println(msg.ProjectName)
 
-		m.repositoryView = components.NewReposModel()
+		m.repositoryView = components.NewReposModel(msg.ProjectId)
 		m.currentView = repositoryView
 		// We don’t have any new command, so return nil
 		return m, nil
@@ -81,8 +82,12 @@ func (m ParentModel) updateProjectView(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ParentModel) updateRepoView(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// Perform the update on the repositoryView model
 	newModel, cmd := m.repositoryView.Update(msg)
-	m.repositoryView = newModel.(components.ReposModel)
+
+	// Assert the type and take the address
+	updatedModel := newModel.(components.ReposModel)
+	m.repositoryView = &updatedModel
 	return m, cmd
 }
 
@@ -90,6 +95,8 @@ func (m ParentModel) View() string {
 	switch m.currentView {
 	case projectView:
 		return m.projectView.View()
+	case repositoryView:
+		return m.repositoryView.View()
 	default:
 		return "Unknown View"
 	}

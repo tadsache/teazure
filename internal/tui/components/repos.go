@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"main.go/internal/azure"
 	"main.go/internal/tui"
 )
 
@@ -17,18 +18,24 @@ type ReposModel struct {
 // todo KeyMAp
 
 var reposColumns = []table.Column{
-	{Title: "Name", Width: 150},
+	{Title: "Name", Width: 50},
+	{Title: "Id", Width: 50},
+	{Title: "URL", Width: 70},
 	// todo
 }
 
-func NewReposModel() ReposModel {
+func NewReposModel(projectId string) *ReposModel {
 	// r := azure.GetRepos
 	// todo azure
-	data := []string{"ABX", "DEF"}
+	//testId := "002d8df7-4e1d-4c4a-9dae-83f9ea62c2cb"
+	var repos = azure.GetReposForProject(projectId)
+
 	var rows []table.Row
-	for _, j := range data {
+	for _, r := range *repos {
 		row := table.Row{
-			j,
+			*r.Name,
+			r.Id.String(),
+			*r.Url,
 		}
 		rows = append(rows, row)
 	}
@@ -41,7 +48,7 @@ func NewReposModel() ReposModel {
 	)
 	t.SetStyles(tui.TableStyle)
 
-	m := ReposModel{
+	m := &ReposModel{
 		table:  t,
 		KeyMap: DefaultKeyMap(),
 	}
@@ -61,15 +68,17 @@ func (m ReposModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.KeyMap.Enter):
 			m.Enter()
 		case key.Matches(msg, m.KeyMap.Quit):
-			// fixme not the right way to handle it
-			m.Quit()
+			return m, tea.Quit
 		}
-		// Let the table handle up/down navigation or other keys
-		var cmd tea.Cmd
-		m.table, cmd = m.table.Update(msg)
-		return m, cmd
 	}
-	return m, nil
+
+	// Delegate message handling to the table and update its state
+	var cmd tea.Cmd
+	updatedTable, tableCmd := m.table.Update(msg)
+	m.table = updatedTable
+	cmd = tea.Batch(cmd, tableCmd)
+
+	return m, cmd
 }
 
 func (m ReposModel) Enter() {

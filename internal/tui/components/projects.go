@@ -107,15 +107,13 @@ func (m ProjectsModel) View() string {
 func (m *ProjectsModel) Enter() tea.Cmd {
 	fmt.Printf("pressed Enter")
 	// switch to project detail view
-	// print repo id
-	c := m.table.SelectedRow()[1] // select hash id
-	fmt.Println(c)
 
 	// The user pressed Enter on a project
 	// We’ll handle "switching to detail" in the parent model,
 	// so let's send a custom message upward:
 	ms := SelectProjectMsg{
-		ProjectName: "test",
+		ProjectName: m.table.SelectedRow()[0],
+		ProjectId:   m.table.SelectedRow()[1],
 	}
 
 	return func() tea.Msg {
@@ -126,6 +124,7 @@ func (m *ProjectsModel) Enter() tea.Cmd {
 // SelectProjectMsg is a custom message we’ll emit when the user selects a project
 type SelectProjectMsg struct {
 	ProjectName string
+	ProjectId   string
 }
 
 func (m *ProjectsModel) Quit() (tea.Model, tea.Cmd) {
